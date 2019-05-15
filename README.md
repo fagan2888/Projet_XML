@@ -6,10 +6,8 @@ Ce projet a été réalisé dans le cadre de notre M1.
 
 ### Prerequisites
 - Windows 10
-
--Eclipse 
-
--MySQL Server
+- Eclipse 
+- MySQL Server
 
 ### Installing
 #### Mise en place de la BDD avec PHPMyAdmin
@@ -142,6 +140,12 @@ xD7nN1kuFw==</P><Q>li7dzDacuo67Jg7mtqEm2TRuOMU=</Q><G>Z4Rxsnqc9E7pGknFFH2xqaryRP
 QW5QvnlMpA==</G><Y>zxLTsLJWzANvZHxGcWPBbW3ZKWJyvleEy1Xg90zTQDOqkbif3KHfGJNvdYpQnXq5ZFS7NJayX4N7
 BX/6vd/fdw==</Y></DSAKeyValue></KeyValue></KeyInfo></Signature></SELECT>
 ```
+### Tests
+Les tests des fichiers fournis peuvent s'effectuer dans ce sens:
+- envelopeSelectSigned.xml
+- envelopeInsertSigned.xml
+- envelopeUpdateSigned.xml
+- envelopeDeleteSigned.xml
 
 ## Spécificités
 Le programme limite les fichiers à une taille de 64000. 
@@ -173,6 +177,11 @@ factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
 Transformer transformer = factory.newTransformer();
 transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 ```
+
+# Evolutions possibles
+- Corriger les failles 
+- Créer et catégoriser les exceptions pour ensuite les catch
+- Améliorer l'interface graphique
 
 ## FIX
 Lors du rendu je n'ai pas mis les méthodes `checkAllExist` en bas de chaque méthode `getQuery?????(Node node)`
