@@ -9,7 +9,7 @@
                 <VALUE>100001</VALUE>
             </EQUALS>
     </CONDITION>
-<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#dsa-sha1"/><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>BWGqVRGjugLi0Lff0/c38FpsCHc=</DigestValue></Reference></SignedInfo><SignatureValue>E4l8HsvnHnr8QHFg62Tiq6mSbCkJhaotojDo1ZoCYjmWywFpOy20gA==</SignatureValue><KeyInfo><KeyValue><DSAKeyValue><P>/KaCzo4Syrom78z3EQ5SbbB4sF7ey80etKII864WF64B81uRpH5t9jQTxeEu0ImbzRMqzVDZkVG9
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#dsa-sha1"/><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>BWGqVRGjugLi0Lff0/c38FpsCHc=</DigestValue></Reference></SignedInfo><SignatureValue>lPbkYeenSWah0eUhFmnqEL5cUjFQVVAwDFTHV5BCMmsZ8joICx3OQQ==</SignatureValue><KeyInfo><KeyValue><DSAKeyValue><P>/KaCzo4Syrom78z3EQ5SbbB4sF7ey80etKII864WF64B81uRpH5t9jQTxeEu0ImbzRMqzVDZkVG9
 xD7nN1kuFw==</P><Q>li7dzDacuo67Jg7mtqEm2TRuOMU=</Q><G>Z4Rxsnqc9E7pGknFFH2xqaryRPBaQ01khpMdLRQnG541Awtx/XPaF5Bpsy4pNWMOHCBiNU0Nogps
-QW5QvnlMpA==</G><Y>ri6IgX4uXNZGrr8Ylridr/7uDGa+nlBHRlmnXwgkzdSNDjlPohGtRPV07in2GBhrfaG2gVRP8hK0
-xA2Q8ZxtJg==</Y></DSAKeyValue></KeyValue></KeyInfo></Signature></DELETE>
+QW5QvnlMpA==</G><Y>CZ/ppWIn8EQ4xcDiX+JyKJJKKIGZ0MC5DmbaZB7mhCJUM99XvA/a8tyUvcODZChA1U6/vlv3C6xb
+n/wwNZ4fLw==</Y></DSAKeyValue></KeyValue></KeyInfo></Signature></DELETE>

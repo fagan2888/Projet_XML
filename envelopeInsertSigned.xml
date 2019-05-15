@@ -14,7 +14,7 @@
 		<VALUE>1</VALUE>
 		<VALUE>NZL</VALUE>
 	</VALUES>
-<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#dsa-sha1"/><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>at9FsDbXfl1Gkfw9b1HHAkS6kkk=</DigestValue></Reference></SignedInfo><SignatureValue>lc2xVwEmL31AAIFEOWAU+khpRH9sYHpY4wlafoTNMo8fi9S+z/LmvQ==</SignatureValue><KeyInfo><KeyValue><DSAKeyValue><P>/KaCzo4Syrom78z3EQ5SbbB4sF7ey80etKII864WF64B81uRpH5t9jQTxeEu0ImbzRMqzVDZkVG9
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#dsa-sha1"/><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>at9FsDbXfl1Gkfw9b1HHAkS6kkk=</DigestValue></Reference></SignedInfo><SignatureValue>kqgh/OVmh1UIH6zTiVRmC8BhS6OLRa4ZEg9viCUkuUcZ2EselW8zCQ==</SignatureValue><KeyInfo><KeyValue><DSAKeyValue><P>/KaCzo4Syrom78z3EQ5SbbB4sF7ey80etKII864WF64B81uRpH5t9jQTxeEu0ImbzRMqzVDZkVG9
 xD7nN1kuFw==</P><Q>li7dzDacuo67Jg7mtqEm2TRuOMU=</Q><G>Z4Rxsnqc9E7pGknFFH2xqaryRPBaQ01khpMdLRQnG541Awtx/XPaF5Bpsy4pNWMOHCBiNU0Nogps
-QW5QvnlMpA==</G><Y>f3sMBrcW1OJH9eCdlCPzvyXoRpqJFyofS107jV0cFHzdNFvSty76xjxGudFXh/TrF5wGZG34RXq5
-XmViSqtyCA==</Y></DSAKeyValue></KeyValue></KeyInfo></Signature></INSERT>
+QW5QvnlMpA==</G><Y>mn5a6J1n34xEOzia42TK+HjbB9pcjrkP36VRjAyktuk6NaRDryn1MvGr/ljGbI8VWifSc3gp6ia+
+4icu40HHaQ==</Y></DSAKeyValue></KeyValue></KeyInfo></Signature></INSERT>

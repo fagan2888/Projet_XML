@@ -348,7 +348,6 @@ public class Rechercher {
 			query.append(" ");
 		}
 		/* /GESTION DES CHAMPS */
-		tm.checkAllExist();
 		
 		query.append(queryFrom);
 
@@ -362,6 +361,7 @@ public class Rechercher {
 		}
 		/* /GESTION DE LA CONDITION */
 
+		tm.checkAllExist();
 		ps = cnx.prepareStatement(query.toString());
 		
 		int p = 1;
@@ -402,7 +402,7 @@ public class Rechercher {
 		
 		query.append(table.toQuery());
 		
-		tm.checkAllExist();
+		tm.checkAllExist(); // obligé de l'utiliser ici pour vérifier que la table existe afin de récupérer son nombre de colonnes
 		columnsCount = bddTables.get(table.getName()).size();
 		/* /GESTION DE LA TABLE */
 
@@ -445,6 +445,9 @@ public class Rechercher {
 				throw new Error(String.format("Not enough values, needed %d (found: %d).",columnsCount, childsCount));
 			
 		}
+
+		tm.checkAllExist();
+		
 		/* /GESTION DES VALEURS */
 		ps = cnx.prepareStatement(query.toString());
 		int p = 1;
@@ -479,8 +482,6 @@ public class Rechercher {
 		query.append(f.toQuery());
 		/* /GESTION DE LA TABLE */
 		
-		tm.checkAllExist();
-		
 		
 		/* GESTION DU SET */
 		expression = String.format("/%s/CHAMP", queryType);
@@ -491,7 +492,6 @@ public class Rechercher {
 		
 		query.append(" = ? ");
 		/* /GESTION DU SET*/
-		tm.checkAllExist();
 		
 		/* GESTION DE LA CONDITION */
 		expression = String.format("/%s/CONDITION", queryType);
@@ -502,6 +502,7 @@ public class Rechercher {
 			handleCondition(tm,query,conditionParameters,node);
 		}
 		/* /GESTION DE LA CONDITION */
+		tm.checkAllExist();
 		ps = cnx.prepareStatement(query.toString());
 		
 
@@ -544,8 +545,6 @@ public class Rechercher {
 		Table f = tm.addTable(node);
 		query.append(f.toQuery());
 		
-		// Vérification des tables
-		tm.checkAllExist();
 		/* /GESTION DE LA TABLE */
 		
 		
@@ -559,6 +558,7 @@ public class Rechercher {
 			handleCondition(tm,query,conditionParameters,node);
 		}
 		/* /GESTION DE LA CONDITION */
+		tm.checkAllExist();
 		ps = cnx.prepareStatement(query.toString());
 		
 		int p = 1;
