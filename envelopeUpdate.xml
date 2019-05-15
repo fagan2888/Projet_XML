@@ -1,6 +1,13 @@
 <UPDATE>
-	<TABLE>joueur</TABLE>
+	<TABLE alias="j">joueur</TABLE>
 	<CHAMP table="joueur">nom_joueur</CHAMP>
 	<VALUE>NouveauNom</VALUE>
-	<CONDITION>numJoueur = 100000</CONDITION>
+	<CONDITION>
+        <EQUALS>
+            <CHAMP table="j">
+                numJoueur
+            </CHAMP>
+            <VALUE>100001</VALUE>
+        </EQUALS>
+    </CONDITION>
 </UPDATE>

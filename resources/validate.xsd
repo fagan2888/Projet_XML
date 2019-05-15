@@ -23,7 +23,7 @@
                         </xsd:sequence>
                     </xsd:complexType>
                 </xsd:element>
-                <xsd:element name="CONDITION" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+                <xsd:element name="CONDITION" type="typeCondition" minOccurs="0" maxOccurs="1"/>
                 <xsd:element ref="ds:Signature" minOccurs="1" />
 			</xsd:sequence>
 		</xsd:complexType>
@@ -35,7 +35,7 @@
 				<xsd:element name="VALUES" minOccurs="1" maxOccurs="unbounded">
                     <xsd:complexType>
                         <xsd:sequence>
-                            <xsd:element name="VALUE" type="xsd:string" minOccurs="1" maxOccurs="unbounded" />
+                            <xsd:element name="VALUE" type="typeValue" minOccurs="1" maxOccurs="unbounded" />
                         </xsd:sequence>
                     </xsd:complexType>
                 </xsd:element>
@@ -47,7 +47,7 @@
 		<xsd:complexType>
 			<xsd:sequence>
 				<xsd:element name="TABLE" type="typeTable"/>
-                <xsd:element name="CONDITION" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+                <xsd:element name="CONDITION" type="typeCondition" minOccurs="0" maxOccurs="1"/>
                 <xsd:element ref="ds:Signature" minOccurs="1" />
 			</xsd:sequence>
 		</xsd:complexType>
@@ -57,8 +57,8 @@
 			<xsd:sequence>
 				<xsd:element name="TABLE" type="typeTable"/>
 				<xsd:element name="CHAMP" type="typeChamp"/>
-				<xsd:element name="VALUE" type="xsd:string"/>
-                <xsd:element name="CONDITION" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+				<xsd:element name="VALUE" type="typeValue"/>
+                <xsd:element name="CONDITION" type="typeCondition" minOccurs="0" maxOccurs="1"/>
                 <xsd:element ref="ds:Signature" minOccurs="1" />
 			</xsd:sequence>
 		</xsd:complexType>
@@ -86,12 +86,36 @@
 		</xsd:restriction>
 	</xsd:simpleType>
 
-		<xsd:complexType  name="typeTable">
-			<xsd:simpleContent>
-				<xsd:extension base="table">
-					<xsd:attribute name="alias" type="xsd:string" use="optional"/>
-				</xsd:extension>
-			</xsd:simpleContent>
-		</xsd:complexType>
+    <xsd:complexType  name="typeTable">
+        <xsd:simpleContent>
+            <xsd:extension base="table">
+                <xsd:attribute name="alias" type="xsd:string" use="optional"/>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+        
+    <xsd:complexType name="typeCondition">
+        <xsd:choice minOccurs="1" maxOccurs="unbounded">
+            <xsd:element name="OR" type="typeCondition"/>
+            <xsd:element name="AND" type="typeCondition"/>
+            
+            <xsd:element name="EQUALS" type="operateur"/>
+            <xsd:element name="GREATER" type="operateur"/>
+            <xsd:element name="LESS" type="operateur"/>
+        </xsd:choice>
+    </xsd:complexType>
+    
+    
+    <xsd:complexType name="operateur">
+        <xsd:choice minOccurs="2" maxOccurs="2">
+          <xsd:element name="VALUE" type="typeValue"/>
+          <xsd:element name="CHAMP" type="typeChamp"/>
+        </xsd:choice>
+    </xsd:complexType>
+    
+    <xsd:simpleType name="typeValue">
+        <xsd:restriction base="xsd:string">
+        </xsd:restriction>
+  </xsd:simpleType>
 </xsd:schema>
 

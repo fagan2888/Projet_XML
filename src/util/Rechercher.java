@@ -41,28 +41,7 @@ import xml.Main;
 
 public class Rechercher {
 
-	/* 
-	 * SQL:
-	 *  [ ] PrepareStatement, contre les injections SQL
-	 *  [X] Vérification des noms de tables
-	 * 
-	 * XML:
-	 * Expansion d'entités
-	 * 	[X] limiter la taille totale du document XML à canoniser
-	 * 	[X] identifier et enlever les déclarations de DTD
-	 * Injection de transformations
-	 * 	[ ] Restreindre le nombre total des transformation
-	 * 	[ ] Rejeter (par schema) tout élément référence ou retrievalMethod précisant multiples C14N transformations
-	 * Injection de XPath
-	 * 	[ ] Ne pas traiter KeyInfo
-	 * 	[ ] Restreindre le nombre total des transformations
-	 *  [ ] Refuser (par schema) toute Reference RetrievalMethod précisant des expressions XPath
-	 * Injection de XSLT
-	 * 	[ ] désactiver XSLT par schema
-	 * 
-	 * 
-	 * 
-	 */
+
 	public final static String QUERY_SELECT = "SELECT";
 	public final static String QUERY_INSERT = "INSERT";
 	public final static String QUERY_DELETE = "DELETE";
@@ -251,6 +230,71 @@ public class Rechercher {
 		}
 		return result;
 	}
+	
+	public void handleCondition(TablesManager tm, StringBuilder sb, ArrayList<String> parameters, Node node) throws DOMException, Exception {
+		NodeList nList = node.getChildNodes();
+		
+		int conditionsCount = 0;
+		for (int i = 0; i < nList.getLength(); i++) {
+			node = nList.item(i);
+			if (node.getNodeType() != Node.ELEMENT_NODE)
+				continue;
+			String nodeName = node.getNodeName();
+			if(nodeName.equals("OR") || nodeName.equals("AND")) {
+				NodeList nodeList2 = node.getChildNodes();
+				Node node2;
+				sb.append("(");
+				for(int j = 0, operateurCount = 0; j < nodeList2.getLength(); j++) {
+					node2 = nodeList2.item(j);
+					if (node2.getNodeType() != Node.ELEMENT_NODE)
+						continue;
+					if(operateurCount > 0) {
+						sb.append(" ");
+						sb.append(nodeName);
+						sb.append(" ");
+					}
+					if(!(node2.getNodeName().equals("AND") || node2.getNodeName().equals("OR")))
+						handleOperator(tm, sb, parameters, node2);
+					else
+						handleCondition(tm, sb, parameters, node2);
+					operateurCount ++;
+				}
+				sb.append(")");
+			}else {
+				handleOperator(tm, sb, parameters, node);
+			}
+		}
+	}
+
+	public void handleOperator(TablesManager tm, StringBuilder sb, ArrayList<String> parameters, Node node) throws DOMException, Exception {
+		NodeList nodeList2 = node.getChildNodes();
+		Node node2;
+		String operator = null;
+		if(node.getNodeName().equals("EQUALS"))
+			operator = "=";
+		if(node.getNodeName().equals("GREATER"))
+			operator = ">";
+		if(node.getNodeName().equals("LESS"))
+			operator = "<";
+		for(int j = 0, operateurCount = 0; j < nodeList2.getLength() && operateurCount <2; j++) {
+			node2 = nodeList2.item(j);
+			if (node2.getNodeType() != Node.ELEMENT_NODE)
+				continue;
+			if(node2.getNodeName().equals("VALUE")) {
+				sb.append("?");
+				parameters.add(node2.getTextContent());
+			}else {
+				Column c = tm.addColumn(node2);
+				sb.append(c.toQuery());
+			}
+			if(operateurCount == 0) {
+				sb.append(operator);
+			}
+			operateurCount ++;
+		}
+		sb.append(" ");
+		
+	}
 
 	private PreparedStatement getQuerySelect(Element root) throws Exception {
 		XPathFactory xpf = XPathFactory.newInstance();
@@ -267,6 +311,7 @@ public class Rechercher {
 
 		ArrayList<Column> selectParameters = new ArrayList<Column>();
 		ArrayList<Table> fromParameters = new ArrayList<Table>();
+		ArrayList<String> conditionParameters = new ArrayList<String>();
 
 		TablesManager tm = new TablesManager();
 		
@@ -312,12 +357,16 @@ public class Rechercher {
 		node = (Node) path.evaluate(expression, root, XPathConstants.NODE);
 
 		if (node != null) {
-			query.append("WHERE " + node.getTextContent().trim());
-//			conditionParameter = node.getTextContent().trim();
+			query.append("WHERE ");
+			handleCondition(tm,query,conditionParameters,node);
 		}
 		/* /GESTION DE LA CONDITION */
 
 		ps = cnx.prepareStatement(query.toString());
+		
+		int p = 1;
+		for(String s: conditionParameters)
+			ps.setString(p++, s);
 
 		return ps;
 	}
@@ -419,6 +468,8 @@ public class Rechercher {
 		cnx = ConnexionBDD.getInstance().getCnx();
 		
 		TablesManager tm = new TablesManager();
+
+		ArrayList<String> conditionParameters = new ArrayList<String>();
 		
 		/* GESTION DE LA TABLE */
 		expression = String.format("/%s/TABLE", queryType);
@@ -447,8 +498,8 @@ public class Rechercher {
 		node = (Node) path.evaluate(expression, root, XPathConstants.NODE);
 
 		if (node != null) {
-			query.append("WHERE "+node.getTextContent().trim());
-//			conditionParameter = node.getTextContent().trim();
+			query.append("WHERE ");
+			handleCondition(tm,query,conditionParameters,node);
 		}
 		/* /GESTION DE LA CONDITION */
 		ps = cnx.prepareStatement(query.toString());
@@ -457,7 +508,12 @@ public class Rechercher {
 		// Ajout de la valeur du set
 		expression = String.format("/%s/VALUE", queryType);
 		node = (Node) path.evaluate(expression, root, XPathConstants.NODE);
-		ps.setString(1,node.getTextContent());
+		int p = 1;
+		ps.setString(p++,node.getTextContent());
+		
+		
+		for(String s: conditionParameters)
+			ps.setString(p++, s);
 		
 		return ps;
 	}
@@ -476,6 +532,8 @@ public class Rechercher {
 		cnx = ConnexionBDD.getInstance().getCnx();
 		
 		TablesManager tm = new TablesManager();
+		
+		ArrayList<String> conditionParameters = new ArrayList<String>();
 
 
 		/* GESTION DE LA TABLE */
@@ -497,11 +555,15 @@ public class Rechercher {
 		node = (Node) path.evaluate(expression, root, XPathConstants.NODE);
 
 		if (node != null) {
-			query.append("WHERE "+node.getTextContent().trim());
-//			conditionParameter = node.getTextContent().trim();
+			query.append(" WHERE ");
+			handleCondition(tm,query,conditionParameters,node);
 		}
 		/* /GESTION DE LA CONDITION */
 		ps = cnx.prepareStatement(query.toString());
+		
+		int p = 1;
+		for(String s: conditionParameters)
+			ps.setString(p++, s);
 		
 		return ps;
 	}

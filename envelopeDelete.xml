@@ -1,4 +1,12 @@
 <DELETE>
 	<TABLE>joueur</TABLE>
-	<CONDITION>numJoueur = 100000 OR numJoueur = 100001</CONDITION>
+	<CONDITION>
+
+            <EQUALS>
+                <CHAMP table="joueur">
+                    numJoueur
+                </CHAMP>
+                <VALUE>100001</VALUE>
+            </EQUALS>
+    </CONDITION>
 </DELETE>

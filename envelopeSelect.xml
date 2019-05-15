@@ -11,17 +11,19 @@
     <TABLE alias="j">joueur</TABLE>
 </TABLES>
 <CONDITION>
-    <PARENTHESE>
-        <OR>
+    <OR>
         <EQUALS>
-            <VALUE>
-                76
-            </VALUE>
+            <VALUE>76</VALUE>
             <CHAMP table="j">
                 numJoueur
             </CHAMP>
         </EQUALS>
-        <OR>
-    </PARENTHESE>
+        <GREATER>
+            <CHAMP table="j">
+                numJoueur
+            </CHAMP>
+            <VALUE>76</VALUE>
+        </GREATER>
+    </OR>
 </CONDITION>
 </SELECT>
