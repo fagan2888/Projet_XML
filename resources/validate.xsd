@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"  
+            xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+  attributeFormDefault="unqualified" elementFormDefault="qualified">
+
+<xsd:import namespace="http://www.w3.org/2000/09/xmldsig#"
+           schemaLocation="xmldsig-core-schema.xsd"/>
+
+	<xsd:element name="SELECT">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="CHAMPS" minOccurs="1" maxOccurs="1">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="CHAMP" type="xsd:string" minOccurs="1" maxOccurs="unbounded" />
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+				<xsd:element name="TABLES" minOccurs="1" maxOccurs="1">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="TABLE" type="typeTable" minOccurs="1" maxOccurs="unbounded" />
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element name="CONDITION" type="xsd:string"/>
+                <xsd:element ref="ds:Signature" minOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="INSERT">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="TABLE" type="typeTable"/>
+				<xsd:element name="VALUES" minOccurs="1" maxOccurs="1">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="VALUE" type="xsd:string" minOccurs="1" maxOccurs="unbounded" />
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element name="CONDITION" type="xsd:string"/>
+                <xsd:element ref="ds:Signature" minOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="DELETE">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="TABLE" type="typeTable"/>
+                <xsd:element name="CONDITION" type="xsd:string"/>
+                <xsd:element ref="ds:Signature" minOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="UPDATE">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="TABLE" type="typeTable"/>
+				<xsd:element name="CHAMP" type="xsd:string"/>
+				<xsd:element name="VALUE" type="xsd:string"/>
+                <xsd:element name="CONDITION" type="xsd:string"/>
+                <xsd:element ref="ds:Signature" minOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:simpleType name="typeTable">
+		<xsd:restriction base="xsd:normalizedString">
+			<xsd:enumeration value="arbitre"/>
+			<xsd:enumeration value="arbitrer"/>
+			<xsd:enumeration value="equipe"/>
+			<xsd:enumeration value="jouer"/>
+			<xsd:enumeration value="joueur"/>
+			<xsd:enumeration value="matchs"/>
+			<xsd:enumeration value="poste"/>
+			<xsd:enumeration value="stade"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+</xsd:schema>
+
