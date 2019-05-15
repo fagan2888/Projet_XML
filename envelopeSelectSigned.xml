@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><SELECT>
+<CHAMPS>
+    <CHAMP table="joueur">
+        numJoueur
+    </CHAMP>
+    <CHAMP table="j">
+        prenom_joueur
+    </CHAMP>
+</CHAMPS>
+<TABLES>
+    <TABLE alias="j">joueur</TABLE>
+</TABLES>
+<CONDITION>
+    <OR>
+        <EQUALS>
+            <VALUE>76</VALUE>
+            <CHAMP table="j">
+                numJoueur
+            </CHAMP>
+        </EQUALS>
+        <GREATER>
+            <CHAMP table="j">
+                numJoueur
+            </CHAMP>
+            <VALUE>76</VALUE>
+        </GREATER>
+    </OR>
+</CONDITION>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#dsa-sha1"/><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>0651FNP74kq5tXfntjWfwjKrdco=</DigestValue></Reference></SignedInfo><SignatureValue>ae8aIsdNwzAs93zuHzsKOle5R9V4xi0u18wKM/p8cBscKCVnJJ1dNA==</SignatureValue><KeyInfo><KeyValue><DSAKeyValue><P>/KaCzo4Syrom78z3EQ5SbbB4sF7ey80etKII864WF64B81uRpH5t9jQTxeEu0ImbzRMqzVDZkVG9
+xD7nN1kuFw==</P><Q>li7dzDacuo67Jg7mtqEm2TRuOMU=</Q><G>Z4Rxsnqc9E7pGknFFH2xqaryRPBaQ01khpMdLRQnG541Awtx/XPaF5Bpsy4pNWMOHCBiNU0Nogps
+QW5QvnlMpA==</G><Y>WjURvRHh7kaU2LnKSlcsx/7AipZ6A6Ppu19KS8A5oBoKiJ3IVO70du0+1idqGdSQFR1RoLBZw5pj
+Z2mTFqOBaw==</Y></DSAKeyValue></KeyValue></KeyInfo></Signature></SELECT>

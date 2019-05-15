@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><INSERT>
+	<TABLE>joueur</TABLE>
+	<VALUES>
+		<VALUE>100000</VALUE>
+		<VALUE>Prenom</VALUE>
+		<VALUE>Nom</VALUE>
+		<VALUE>1</VALUE>
+		<VALUE>NZL</VALUE>
+	</VALUES>
+	<VALUES>
+		<VALUE>100001</VALUE>
+		<VALUE>Prenom2</VALUE>
+		<VALUE>Nom2</VALUE>
+		<VALUE>1</VALUE>
+		<VALUE>NZL</VALUE>
+	</VALUES>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#dsa-sha1"/><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>at9FsDbXfl1Gkfw9b1HHAkS6kkk=</DigestValue></Reference></SignedInfo><SignatureValue>lc2xVwEmL31AAIFEOWAU+khpRH9sYHpY4wlafoTNMo8fi9S+z/LmvQ==</SignatureValue><KeyInfo><KeyValue><DSAKeyValue><P>/KaCzo4Syrom78z3EQ5SbbB4sF7ey80etKII864WF64B81uRpH5t9jQTxeEu0ImbzRMqzVDZkVG9
+xD7nN1kuFw==</P><Q>li7dzDacuo67Jg7mtqEm2TRuOMU=</Q><G>Z4Rxsnqc9E7pGknFFH2xqaryRPBaQ01khpMdLRQnG541Awtx/XPaF5Bpsy4pNWMOHCBiNU0Nogps
+QW5QvnlMpA==</G><Y>f3sMBrcW1OJH9eCdlCPzvyXoRpqJFyofS107jV0cFHzdNFvSty76xjxGudFXh/TrF5wGZG34RXq5
+XmViSqtyCA==</Y></DSAKeyValue></KeyValue></KeyInfo></Signature></INSERT>
