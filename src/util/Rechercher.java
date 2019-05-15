@@ -12,6 +12,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.StringJoiner;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -64,12 +67,41 @@ public class Rechercher {
 	public final static String QUERY_INSERT = "INSERT";
 	public final static String QUERY_DELETE = "DELETE";
 	public final static String QUERY_UPDATE = "UPDATE";
+	
+	private final static String ATTR_TABLE = "table";
+	private final static String ATTR_ALIAS = "alias";
 
 	public final static String INFORMATIONS_INDEX = "informations";
 	
 	public final static SimpleDateFormat DEFAULT_FILE_NAME = new SimpleDateFormat("ddMMyy-hhmmss.SSS");
+	
+	private HashMap<String,ArrayList<String>> bddTables;
 
 	private File xmlFile;
+	
+	public Rechercher() throws SQLException {
+		gatherTablesColumns();
+	}
+	
+	private void gatherTablesColumns() throws SQLException {
+		bddTables = new HashMap<String, ArrayList<String>>();
+		Connection cnx = ConnexionBDD.getInstance().getCnx();
+
+		DatabaseMetaData dbmd = cnx.getMetaData();
+
+	    ResultSet resultSet = dbmd.getColumns(null, null, "%", "%");
+	    
+	    while (resultSet.next()) {
+		    String tableName = resultSet.getString("TABLE_NAME");
+	    	ArrayList<String> columns = bddTables.get(tableName);
+	    	
+	    	if(columns == null) {
+	    		columns = new ArrayList<String>();
+	    		bddTables.put(tableName, columns);
+	    	}
+	    	columns.add(resultSet.getString("COLUMN_NAME"));
+	    }
+	}
 
 	public File getXmlFile() {
 		return xmlFile;
@@ -182,7 +214,7 @@ public class Rechercher {
 		return xmlQueryAction(((Node) root).getNodeName(), root);
 	}
 
-	private void validateXmlFile(File file) {
+	private void validateXmlFile(File file) throws Exception {
 		Source xmlFile = new StreamSource(file);
 		File schemaFile = new File(Main.class.getClassLoader().getResource("validate.xsd").getFile());
 		SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
@@ -190,11 +222,11 @@ public class Rechercher {
 			Schema schema = schemaFactory.newSchema(schemaFile);
 			Validator validator = schema.newValidator();
 			validator.validate(xmlFile);
-			System.out.println(xmlFile.getSystemId() + " is valid");
 		} catch (SAXException e) {
-			System.out.println(xmlFile.getSystemId() + " is NOT valid reason:" + e);
 			e.printStackTrace();
+			throw new Exception("Invalid xml");
 		} catch (IOException e) {
+			throw new Exception("Error during xml validation");
 		}
 	}
 
@@ -214,72 +246,60 @@ public class Rechercher {
 		return result;
 	}
 
-	private ArrayList<String> tablesExists(Connection cnx, ArrayList<String> tables) throws SQLException {
-		ArrayList<String> remainingTables = new ArrayList<String>(tables);
-		DatabaseMetaData meta = cnx.getMetaData();
-		ResultSet rs = meta.getTables(null, null, "%", null);
-		while (rs.next()) {
-			for (String t : remainingTables) {
-				if (rs.getString("TABLE_NAME").equals(t))
-					remainingTables.remove(t);
-				break;
-			}
-		}
-		return remainingTables;
-	}
-
 	private PreparedStatement getQuerySelect(Element root) throws Exception {
 		XPathFactory xpf = XPathFactory.newInstance();
 		XPath path = xpf.newXPath();
 
 		final String queryType = QUERY_SELECT;
 		StringBuilder query = new StringBuilder("SELECT ");
+		StringBuilder queryFrom = new StringBuilder();
 		String expression;
 		NodeList nList;
 		Node node;
 		Connection cnx = null;
 		PreparedStatement ps = null;
-		ArrayList<String> undefinedIdentifiers;
 
-		ArrayList<String> selectParameters = new ArrayList<String>();
-		ArrayList<String> fromParameters = new ArrayList<String>();
-		String conditionParameter = null;
+		ArrayList<Column> selectParameters = new ArrayList<Column>();
+		ArrayList<Table> fromParameters = new ArrayList<Table>();
 
+		TablesManager tm = new TablesManager();
+		
 		cnx = ConnexionBDD.getInstance().getCnx();
 
+		
+
+		/* GESTION DES TABLES */
+		expression = String.format("/%s/TABLES/TABLE", queryType);
+		nList = (NodeList) path.evaluate(expression, root, XPathConstants.NODESET);
+		queryFrom.append("FROM ");
+		for (int i = 0; i < nList.getLength(); i++) {
+			node = nList.item(i);
+			Table f = tm.addTable(node);
+			fromParameters.add(f);
+			queryFrom.append(f.toQuery());
+			if (i < nList.getLength() - 1)
+				queryFrom.append(",");
+			queryFrom.append(" ");
+		}
+		/* /GESTION DES TABLES */
+		
 		/* GESTION DES CHAMPS */
 		expression = String.format("/%s/CHAMPS/CHAMP", queryType);
 		nList = (NodeList) path.evaluate(expression, root, XPathConstants.NODESET);
 
 		for (int i = 0; i < nList.getLength(); i++) {
 			node = nList.item(i);
-			selectParameters.add(node.getTextContent().trim());
-			query.append("?");
+			Column s = tm.addColumn(node);
+			selectParameters.add(s);
+			query.append(s.toQuery());
 			if (i < nList.getLength() - 1)
 				query.append(",");
 			query.append(" ");
 		}
 		/* /GESTION DES CHAMPS */
-
-		/* GESTION DES TABLES */
-		expression = String.format("/%s/TABLES/TABLE", queryType);
-		nList = (NodeList) path.evaluate(expression, root, XPathConstants.NODESET);
-		query = query.append("FROM ");
-		for (int i = 0; i < nList.getLength(); i++) {
-			node = nList.item(i);
-			fromParameters.add(node.getTextContent().trim());
-			query.append(node.getTextContent().trim());
-			if (i < nList.getLength() - 1)
-				query.append(",");
-			query.append(" ");
-		}
-
-		// Vérification des tables
-		undefinedIdentifiers = tablesExists(cnx, fromParameters);
-		if (!undefinedIdentifiers.isEmpty()) {
-			throw new Exception(String.format("Les tables %s n'existent pas.", String.join(",", undefinedIdentifiers)));
-		}
-		/* /GESTION DES TABLES */
+		tm.checkAllExist();
+		
+		query.append(queryFrom);
 
 		/* GESTION DE LA CONDITION */
 		expression = String.format("/%s/CONDITION", queryType);
@@ -292,17 +312,11 @@ public class Rechercher {
 		/* /GESTION DE LA CONDITION */
 
 		ps = cnx.prepareStatement(query.toString());
-		int p = 1;
-		for (String s : selectParameters)
-			ps.setString(p++, s);
-//		for (String s : fromParameters)
-//			ps.setString(p++, s);
-//		if (conditionParameter != null)
-//			ps.setString(p++, conditionParameter);
+
 		return ps;
 	}
 
-	private PreparedStatement getQueryInsert(Element root) throws XPathExpressionException, SQLException {
+	private PreparedStatement getQueryInsert(Element root) throws Exception {
 		StringBuilder query = new StringBuilder("INSERT INTO ");
 		XPathFactory xpf = XPathFactory.newInstance();
 		XPath path = xpf.newXPath();
@@ -316,12 +330,12 @@ public class Rechercher {
 		
 		
 		cnx = ConnexionBDD.getInstance().getCnx();
-		ResultSet rs = null;
-		DatabaseMetaData meta;
+		
 		int columnsCount = 0;
 		
 		ArrayList<String> valuesParameters = new ArrayList<String>();
 		
+		TablesManager tm = new TablesManager();
 	
 		
 
@@ -329,14 +343,12 @@ public class Rechercher {
 		expression = String.format("/%s/TABLE", queryType);
 		node = (Node) path.evaluate(expression, root, XPathConstants.NODE);
 
-
-		query.append(node.getTextContent().trim());
+		Table table = tm.addTable(node);
 		
-		meta = cnx.getMetaData();
-		rs = meta.getColumns(cnx.getCatalog(), null, node.getTextContent().trim().toUpperCase(), "%");
-		while (rs.next()) {
-			columnsCount ++;
-		}
+		query.append(table.toQuery());
+		
+		tm.checkAllExist();
+		columnsCount = bddTables.get(table.getName()).size();
 		/* /GESTION DE LA TABLE */
 
 		
@@ -347,6 +359,7 @@ public class Rechercher {
 		expression = String.format("/%s/VALUES", queryType);
 		nList = (NodeList) path.evaluate(expression, root, XPathConstants.NODESET);
 		
+		int valuesCount = 0;
 		// Pour chaque balise VALUES
 		for (int i = 0; i < nList.getLength(); i++) {
 			node = nList.item(i);
@@ -356,24 +369,26 @@ public class Rechercher {
 			NodeList nListChild = node.getChildNodes();
 			Node childNode;
 			
-			if(i!=0)
+			if(valuesCount++ !=0)
 				query.append(",");
 			query.append("(");
 			
-			int nbChilds = nListChild.getLength();
-			if(nbChilds != columnsCount)
-				throw new Error("Not enough values");
+			
+			int childsCount = 0;
 			// Pour chaque balise VALUE
-			for (int j = 0; j < nbChilds; j++) {
+			for (int j = 0; j < nListChild.getLength(); j++) {
 				childNode = nListChild.item(j);
 				if (childNode.getNodeType() != Node.ELEMENT_NODE)
 					continue;
-				valuesParameters.add(childNode.getTextContent().trim());
-				if(j != 0)
+				valuesParameters.add(childNode.getTextContent());
+				if(childsCount++ != 0)
 					query.append(",");
 				query.append("?");
 			}
 			query.append(")");
+			if(childsCount != columnsCount)
+				throw new Error(String.format("Not enough values, needed %d (found: %d).",columnsCount, childsCount));
+			
 		}
 		/* /GESTION DES VALEURS */
 		ps = cnx.prepareStatement(query.toString());
@@ -397,24 +412,17 @@ public class Rechercher {
 		
 		cnx = ConnexionBDD.getInstance().getCnx();
 		
-		ArrayList<String> undefinedIdentifiers = new ArrayList<String>();
-
-		ArrayList<String> fromParameters = new ArrayList<String>();
-		String conditionParameter = null;
+		TablesManager tm = new TablesManager();
 		
 		/* GESTION DE LA TABLE */
 		expression = String.format("/%s/TABLE", queryType);
 		node = (Node) path.evaluate(expression, root, XPathConstants.NODE);
 		
-		query.append(node.getTextContent().trim());
-		
-		// Vérification des tables
-		undefinedIdentifiers = tablesExists(cnx, fromParameters);
-		if (!undefinedIdentifiers.isEmpty()) {
-			throw new Exception(String.format("Les tables %s n'existent pas.", String.join(",", undefinedIdentifiers)));
-		}
+		Table f = tm.addTable(node);
+		query.append(f.toQuery());
 		/* /GESTION DE LA TABLE */
 		
+		tm.checkAllExist();
 		
 		/* GESTION DE LA CONDITION */
 		expression = String.format("/%s/CONDITION", queryType);
@@ -434,15 +442,16 @@ public class Rechercher {
 		/* GESTION DU SET */
 		expression = String.format("/%s/CHAMP", queryType);
 		node = (Node) path.evaluate(expression, root, XPathConstants.NODE);
-
-		ps.setString(1,node.getTextContent().trim());
+		Column column = tm.addColumn(node);
+		ps.setString(1,column.getName());
 
 		
 		expression = String.format("/%s/VALUE", queryType);
 		node = (Node) path.evaluate(expression, root, XPathConstants.NODE);
 
-		ps.setString(2,node.getTextContent().trim());
+		ps.setString(2,node.getTextContent());
 		/* /GESTION DU SET */
+		tm.checkAllExist();
 
 		
 		return ps;
@@ -460,24 +469,20 @@ public class Rechercher {
 		PreparedStatement ps = null;
 		
 		cnx = ConnexionBDD.getInstance().getCnx();
-
-		ArrayList<String> undefinedIdentifiers;
 		
-		ArrayList<String> fromParameters = new ArrayList<String>();
-		String conditionParameter = null;
+		TablesManager tm = new TablesManager();
 
 
 		/* GESTION DE LA TABLE */
 		expression = String.format("/%s/TABLE", queryType);
 		node = (Node) path.evaluate(expression, root, XPathConstants.NODE);
 
-		query.append(node.getTextContent().trim());
+		
+		Table f = tm.addTable(node);
+		query.append(f.toQuery());
 		
 		// Vérification des tables
-		undefinedIdentifiers = tablesExists(cnx, fromParameters);
-		if (!undefinedIdentifiers.isEmpty()) {
-			throw new Exception(String.format("Les tables %s n'existent pas.", String.join(",", undefinedIdentifiers)));
-		}
+		tm.checkAllExist();
 		/* /GESTION DE LA TABLE */
 		
 		
@@ -492,11 +497,148 @@ public class Rechercher {
 		}
 		/* /GESTION DE LA CONDITION */
 		ps = cnx.prepareStatement(query.toString());
-//		ps.setString(2, conditionParameter);
-		
-		
 		
 		return ps;
+	}
+	
+	public class TablesManager{
+		HashSet<Table> tables;
+		
+		public TablesManager() {
+			tables = new HashSet<Table>();
+		}
+		
+		public Table addTable(Node node) {
+			Table table = null;
+			String tableName = node.getTextContent().trim();
+			for(Table t: tables)
+				if(t.getName().equals(tableName))
+					table = t;
+			if(table == null) {
+				String alias = null;
+				if(node.getAttributes().getNamedItem(ATTR_ALIAS) != null)
+					alias = node.getAttributes().getNamedItem(ATTR_ALIAS).getNodeValue();
+				table = new Table(tableName, alias);
+				tables.add(table);
+			}
+			return table;
+		}
+		
+		public Column addColumn(Node node) throws DOMException, Exception {
+			return addColumn(node.getAttributes().getNamedItem(ATTR_TABLE).getNodeValue(),
+					node.getTextContent().trim());
+		}
+		public Column addColumn(String tableName, String columnName) throws Exception {
+			Column column = null;
+			for(Table t: tables) {
+				if(t.getName().equals(tableName) || t.getAlias().equals(tableName)) {
+					column = t.addColumn(columnName);
+				}
+			}
+			if(column == null)
+				throw new Exception(String.format("La table %s n'a pas été déclarée.", tableName));
+			return column;
+		}
+		
+		public void checkAllExist() throws Exception {
+			StringBuilder sb = new StringBuilder();
+			for(Table t: tables) {
+				ArrayList<String> bddTable = bddTables.get(t.getName());
+				if(bddTable == null) {
+					sb.append(t.getName());
+					sb.append(" ");
+				}else {
+					for(Column c: t.getColumns()) {
+						if(!bddTable.contains(c.getName())) {
+							sb.append(t.getName());
+							sb.append(".");
+							sb.append(c.getName());
+							sb.append(" ");
+						}
+					}
+				}
+			}
+			if(sb.length() > 0)
+				throw new Exception(String.format("Erreur: tables ou colonnes inexistantes: %s", sb.toString()));
+		}
+	}
+	
+	public class Column{
+		private Table table;
+		private String name;
+		
+		public Column(Table table,String name) {
+			this.table = table;
+			this.name = name;
+		}
+		
+		public Table getTable() {
+			return table;
+		}
+		public String getName() {
+			return name;
+		}
+		public String toQuery() {
+			StringBuilder sb = new StringBuilder();
+			sb.append("`");
+			sb.append(table.getAlias());
+			sb.append("`");
+			sb.append(".");
+			sb.append("`");
+			sb.append(name);
+			sb.append("`");
+			return sb.toString();
+		}
+	}
+	
+	public class Table{
+		private String name;
+		private String alias;
+		private boolean hasAlias;
+		private HashSet<Column> columns;
+		
+		public Table(String name,String alias) {
+			this.name = name;
+			this.alias = alias;
+			this.hasAlias = alias != null;
+			this.columns = new HashSet<Column>();
+		}
+		
+		public String getName() {
+			return name;
+		}
+		public String getAlias() {
+			if(!hasAlias)
+				return name;
+			return alias;
+		}
+		public HashSet<Column> getColumns(){
+			return columns;
+		}
+		public Column addColumn(String columnName) {
+			Column column = null;
+			for(Column c: columns) {
+				if(c.getName().equals(columnName))
+					column = c;
+			}
+			if(column == null){
+				column = new Column(this, columnName);
+			}
+			return column;
+		}
+		public String toQuery() {
+			StringBuilder sb = new StringBuilder();
+			sb.append("`");
+			sb.append(name);
+			sb.append("`");
+			if(hasAlias) {
+				sb.append(" ");
+				sb.append("`");
+				sb.append(alias);
+				sb.append("`");
+			}
+			return sb.toString();
+		}
 	}
 
 }

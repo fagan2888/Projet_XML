@@ -2,6 +2,7 @@ package xml;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 
 import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
@@ -19,10 +20,15 @@ import util.Rechercher;
 public class Main {
 
 	public static void main(String[] args) {
-		Rechercher model = new Rechercher();
-		GUIController controller = new GUIController(model);
-		GUI gui = new GUI(controller);
-		gui.setVisible(true);
+		Rechercher model;
+		try {
+			model = new Rechercher();
+			GUIController controller = new GUIController(model);
+			GUI gui = new GUI(controller);
+			gui.setVisible(true);
+		} catch (SQLException e) {
+			System.out.println("Impossible de se connecter à la BDD");
+		}
 		// TODO Auto-generated method stub
 
 		/*

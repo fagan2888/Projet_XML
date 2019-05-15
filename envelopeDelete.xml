@@ -1,0 +1,4 @@
+<DELETE>
+	<TABLE>joueur</TABLE>
+	<CONDITION>numJoueur = 100000 OR numJoueur = 100001</CONDITION>
+</DELETE>

@@ -1,0 +1,14 @@
+<SELECT>
+<CHAMPS>
+<CHAMP table="joueur">
+numJoueur
+</CHAMP>
+<CHAMP table="j">
+prenom_joueur
+</CHAMP>
+</CHAMPS>
+<TABLES>
+<TABLE alias="j">joueur</TABLE>
+</TABLES>
+<CONDITION>numJoueur = 76</CONDITION>
+</SELECT>

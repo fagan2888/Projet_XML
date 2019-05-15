@@ -19,6 +19,7 @@ public class GUIController {
 	}
 	
 	public void notifySendQuery() throws Exception {
-		model.execute();
+		File created = model.execute();
+		Process p = new ProcessBuilder("explorer.exe", "/select,"+created.getAbsolutePath()).start();
 	}
 }
