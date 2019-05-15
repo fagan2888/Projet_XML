@@ -125,17 +125,16 @@ public class XMLSign {
 
         // Check core validation status
         if (coreValidity == false) {
+//            boolean sv = signature.getSignatureValue().validate(valContext);
+//            System.out.println("signature validation status: " + sv);
+//            // check the validation status of each Reference
+//            Iterator i = signature.getSignedInfo().getReferences().iterator();
+//            for (int j=0; i.hasNext(); j++) {
+//                boolean refValid =
+//                    ((Reference) i.next()).validate(valContext);
+//                System.out.println("ref["+j+"] validity status: " + refValid);
+//            }
             return false;
-        	/*
-            boolean sv = signature.getSignatureValue().validate(valContext);
-            System.out.println("signature validation status: " + sv);
-            // check the validation status of each Reference
-            Iterator i = signature.getSignedInfo().getReferences().iterator();
-            for (int j=0; i.hasNext(); j++) {
-                boolean refValid =
-                    ((Reference) i.next()).validate(valContext);
-                System.out.println("ref["+j+"] validity status: " + refValid);
-            }*/
         } else {
             return true;
         }

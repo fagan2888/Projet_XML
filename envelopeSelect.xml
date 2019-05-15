@@ -1,14 +1,27 @@
 <SELECT>
 <CHAMPS>
-<CHAMP table="joueur">
-numJoueur
-</CHAMP>
-<CHAMP table="j">
-prenom_joueur
-</CHAMP>
+    <CHAMP table="joueur">
+        numJoueur
+    </CHAMP>
+    <CHAMP table="j">
+        prenom_joueur
+    </CHAMP>
 </CHAMPS>
 <TABLES>
-<TABLE alias="j">joueur</TABLE>
+    <TABLE alias="j">joueur</TABLE>
 </TABLES>
-<CONDITION>numJoueur = 76</CONDITION>
+<CONDITION>
+    <PARENTHESE>
+        <OR>
+        <EQUALS>
+            <VALUE>
+                76
+            </VALUE>
+            <CHAMP table="j">
+                numJoueur
+            </CHAMP>
+        </EQUALS>
+        <OR>
+    </PARENTHESE>
+</CONDITION>
 </SELECT>

@@ -43,22 +43,22 @@ public class Rechercher {
 
 	/* 
 	 * SQL:
-	 * PrepareStatement, contre les injections SQL
-	 * Vérification des noms de tables
+	 *  [ ] PrepareStatement, contre les injections SQL
+	 *  [X] Vérification des noms de tables
 	 * 
 	 * XML:
 	 * Expansion d'entités
-	 * 	limiter la taille totale du document XML à canoniser
-	 * 	identifier et enlever les déclarations de DTD
+	 * 	[X] limiter la taille totale du document XML à canoniser
+	 * 	[X] identifier et enlever les déclarations de DTD
 	 * Injection de transformations
-	 * 	Restreindre le nombre total des transformation
-	 * 	Rejeter (par schema) tout élément référence ou retrievalMethod précisant multiples C14N transformations
+	 * 	[ ] Restreindre le nombre total des transformation
+	 * 	[ ] Rejeter (par schema) tout élément référence ou retrievalMethod précisant multiples C14N transformations
 	 * Injection de XPath
-	 * 	Ne pas traiter KeyInfo
-	 * 	Restreindre le nombre total des transformations
-	 *  Refuser (par schema) toute Reference RetrievalMethod précisant des expressions XPath
+	 * 	[ ] Ne pas traiter KeyInfo
+	 * 	[ ] Restreindre le nombre total des transformations
+	 *  [ ] Refuser (par schema) toute Reference RetrievalMethod précisant des expressions XPath
 	 * Injection de XSLT
-	 * 	désactiver XSLT par schema
+	 * 	[ ] désactiver XSLT par schema
 	 * 
 	 * 
 	 * 
@@ -117,16 +117,16 @@ public class Rechercher {
 		return xmlQuery(xmlFile);
 	}
 	
-	public File querySelectToFile(PreparedStatement ps) {
+	public File querySelectToFile(PreparedStatement ps) throws ParserConfigurationException {
 		System.out.println(ps.toString());
-		DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder documentBuilder;
         File result = null;
 		try {
 			ResultSet rs = ps.executeQuery();
 			ResultSetMetaData rsmd = (ResultSetMetaData) rs.getMetaData();
 			int columnCount = rsmd.getColumnCount();
-			documentBuilder = documentFactory.newDocumentBuilder();
+			documentBuilder = dbf.newDocumentBuilder();
 			Document document = documentBuilder.newDocument();
 	        // root element
 	        Element root = document.createElement("result");
@@ -206,6 +206,8 @@ public class Rechercher {
 		// Traitement des informations du fichier
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
+//        dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+//        dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		Document xml = builder.parse(file);
 
@@ -218,6 +220,10 @@ public class Rechercher {
 		Source xmlFile = new StreamSource(file);
 		File schemaFile = new File(Main.class.getClassLoader().getResource("validate.xsd").getFile());
 		SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+
+//		schemaFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+//		schemaFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+//		System.setProperty("javax.xml.accessExternalSchema", "all");
 		try {
 			Schema schema = schemaFactory.newSchema(schemaFile);
 			Validator validator = schema.newValidator();

@@ -20,6 +20,7 @@ import util.Rechercher;
 public class Main {
 
 	public static void main(String[] args) {
+		System.setProperty("entityExpansionLimit","64000"); // Limite a 64000 l'expansion.
 		Rechercher model;
 		try {
 			model = new Rechercher();
