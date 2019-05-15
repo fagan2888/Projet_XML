@@ -400,7 +400,7 @@ public class Rechercher {
 	}
 
 	private PreparedStatement getQueryUpdate(Element root) throws Exception {
-		StringBuilder query = new StringBuilder("UPDATE ? SET ? = ?");
+		StringBuilder query = new StringBuilder("UPDATE ");
 		XPathFactory xpf = XPathFactory.newInstance();
 		XPath path = xpf.newXPath();
 
@@ -424,6 +424,18 @@ public class Rechercher {
 		
 		tm.checkAllExist();
 		
+		
+		/* GESTION DU SET */
+		expression = String.format("/%s/CHAMP", queryType);
+		node = (Node) path.evaluate(expression, root, XPathConstants.NODE);
+		Column column = tm.addColumn(node);
+		query.append("SET ");
+		query.append(column.toQuery());
+		
+		query.append(" = ? ");
+		/* /GESTION DU SET*/
+		tm.checkAllExist();
+		
 		/* GESTION DE LA CONDITION */
 		expression = String.format("/%s/CONDITION", queryType);
 		node = (Node) path.evaluate(expression, root, XPathConstants.NODE);
@@ -434,25 +446,12 @@ public class Rechercher {
 		}
 		/* /GESTION DE LA CONDITION */
 		ps = cnx.prepareStatement(query.toString());
-//		ps.setString(4, conditionParameter);
-		
-		
 		
 
-		/* GESTION DU SET */
-		expression = String.format("/%s/CHAMP", queryType);
-		node = (Node) path.evaluate(expression, root, XPathConstants.NODE);
-		Column column = tm.addColumn(node);
-		ps.setString(1,column.getName());
-
-		
+		// Ajout de la valeur du set
 		expression = String.format("/%s/VALUE", queryType);
 		node = (Node) path.evaluate(expression, root, XPathConstants.NODE);
-
-		ps.setString(2,node.getTextContent());
-		/* /GESTION DU SET */
-		tm.checkAllExist();
-
+		ps.setString(1,node.getTextContent());
 		
 		return ps;
 	}
