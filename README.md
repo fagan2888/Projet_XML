@@ -1,12 +1,12 @@
 # Projet XML
 
 Ce projet a été réalisé dans le cadre de notre M1.
-L'objectif est de créer les fonctionnalités de base d'un site d'e-commerce tout en apprenant les bases de J2EE, de jsp et de jdbc.
-
 
 ## Getting Started
 
 ### Prerequisites
+- Windows 10
+
 -Eclipse 
 
 -MySQL Server
@@ -104,11 +104,11 @@ Notre partie de condition de la requête étant récursive, j'ai créé deux mé
 - `handleOperator(TablesManager tm, StringBuilder sb, ArrayList<String> parameters, Node node)` qui parcours les fils du noeuds fourni (de type CONDITION, OR ou AND) pour préparer les opération tels que GREATER, LESS ou EQUALS
 
 Grâce à ce système on arrive à une requête comme:
-```
+```SQL
 SELECT `j`.`numJoueur`, `j`.`prenom_joueur` FROM `joueur` `j` WHERE ('76'=`j`.`numJoueur`  OR `j`.`numJoueur`>'76' )
 ```
 à l'aide un fichier XML :
-```
+```XML
 <?xml version="1.0" encoding="UTF-8" standalone="no"?><SELECT>
 <CHAMPS>
     <CHAMP table="joueur">
@@ -143,12 +143,39 @@ QW5QvnlMpA==</G><Y>zxLTsLJWzANvZHxGcWPBbW3ZKWJyvleEy1Xg90zTQDOqkbif3KHfGJNvdYpQn
 BX/6vd/fdw==</Y></DSAKeyValue></KeyValue></KeyInfo></Signature></SELECT>
 ```
 
+## Spécificités
+Le programme limite les fichiers à une taille de 64000. 
+Notre programme a une écriture strict. Je ne donne pas beaucoup de marge pour éviter les injections SQL. 
+Chaque `CHAMP` doit avoir un attribut `table` qui permet d'identifier la table de la colonne visée. On peut notamment ajouter un attribut `alias` aux balises `TABLE` afin de ne pas recopier le nom de la table dans l'attribut `table` des `CHAMP` mais renseigner simplement l'alias. Cela nous permet de vérifier que le champ renseignant la colonne d'une table ne soit pas en réalité une injection mais bien un colonne existante dans une table existante.
+Pour sécuriser les conditions, nous avons une structure récursive avec des balises définies: 
+- `OR`,`AND` des balises pouvant contenir d'autres `OR`, `AND` et des opérations comme `EQUALS`, `GREATER`, `LESS`
+- `EQUALS`, `GREATER`, `LESS` permet de contenir deux balises de type `CHAMP` et `VALUE`
 
+Pour limiter la taille des fichiers à canoniser j'ai utilisé la instructions 
+```Java
+System.setProperty("entityExpansionLimit","64000");
+```
 
-## Auteur
+~~Pour ignorer les DTD j'ai utilisé les instructions~~ (Manque de temps pour debug)
+```Java
+dbf.setFeature("http://xml.org/sax/features/namespaces", false);
+dbf.setFeature("http://xml.org/sax/features/validation", false);
+dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false); 
+```
 
-| [![tLacoste](https://avatars0.githubusercontent.com/u/28592587?s=460&v=4)](https://github.com/tLacoste) |
-| <a href="https://github.com/hugoBrct" target="_blank">`github.com/hugoBrct`</a> | <a href="https://github.com/tLacoste" target="_blank">`github.com/tLacoste`</a> |
+~~Pour éviter les transformations j'ai utilisé les instructions~~ (Manque de temps pour debug)
+```Java
+TransformerFactory factory = TransformerFactory.newInstance();
+factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+
+Transformer transformer = factory.newTransformer();
+transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+```
+
+## FIX
+Lors du rendu je n'ai pas mis les méthodes `checkAllExist` en bas de chaque méthode `getQuery?????(Node node)`
 
 ## License
 
